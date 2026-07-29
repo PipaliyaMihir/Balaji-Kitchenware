@@ -1,9 +1,9 @@
 <?php
-// Configuration for Database Connection (Supports Local XAMPP & Render Deployment)
-$dbHost = getenv('DB_HOST') ?: 'localhost';
-$dbUser = getenv('DB_USER') ?: 'root';
-$dbPass = getenv('DB_PASS') !== false ? getenv('DB_PASS') : '';
-$dbName = getenv('DB_NAME') ?: 'balaji_kitchenware';
+// Configuration for Database Connection (Supports InfinityFree, Render & Local XAMPP)
+$dbHost = getenv('DB_HOST') ?: 'sql211.infinityfree.com';
+$dbUser = getenv('DB_USER') ?: 'if0_42529627';
+$dbPass = (getenv('DB_PASS') !== false && getenv('DB_PASS') !== '') ? getenv('DB_PASS') : 'n2Q5V6IX8jQiJ';
+$dbName = getenv('DB_NAME') ?: 'if0_42529627_balaji_kitchenware';
 $dbPort = getenv('DB_PORT') ?: '3306';
 
 define('DB_HOST', $dbHost);
