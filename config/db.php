@@ -20,18 +20,7 @@ define('CONTACT_PHONE', '+91 98765 43210');
 define('CONTACT_ADDRESS', 'Plot No. 45, GIDC Industrial Estate, Rajkot, Gujarat - 360002');
 
 try {
-    // Connect to MySQL server without DB first to ensure DB exists (if permissions allow)
-    try {
-        $pdo_init = new PDO("mysql:host=" . DB_HOST . ";port=" . DB_PORT, DB_USER, DB_PASS, [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4"
-        ]);
-        $pdo_init->exec("CREATE DATABASE IF NOT EXISTS `" . DB_NAME . "` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;");
-    } catch (PDOException $e_init) {
-        // Continue if database is already created or managed remotely
-    }
-    
-    // Connect to the specific DB
+    // 1. Try Primary Database Connection (InfinityFree / Cloud Environment Variables)
     $pdo = new PDO("mysql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME, DB_USER, DB_PASS, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -42,8 +31,24 @@ try {
     initDatabaseSchema($pdo);
 
 } catch (PDOException $e) {
-    // If connection fails, present a clean fallback message or log error
-    $db_error = $e->getMessage();
+    // 2. Fallback: If remote connection is blocked (e.g. InfinityFree blocks local PC IP), fall back to Local XAMPP MySQL!
+    try {
+        $localPdoInit = new PDO("mysql:host=localhost", "root", "", [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4"
+        ]);
+        $localPdoInit->exec("CREATE DATABASE IF NOT EXISTS `balaji_kitchenware` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;");
+
+        $pdo = new PDO("mysql:host=localhost;dbname=balaji_kitchenware", "root", "", [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4"
+        ]);
+
+        initDatabaseSchema($pdo);
+    } catch (PDOException $e_local) {
+        $db_error = $e_local->getMessage();
+    }
 }
 
 function initDatabaseSchema($pdo) {
